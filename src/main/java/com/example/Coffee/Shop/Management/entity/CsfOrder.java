@@ -1,0 +1,28 @@
+package com.example.Coffee.Shop.Management.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "orders")
+public class CsfOrder {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
+
+    @ManyToOne
+    @JoinColumn(name = "waiter_id", nullable = false)
+    private Waiter waiter;
+
+    private String drinkName;
+    private String status;
+    private java.math.BigDecimal price;
+}
