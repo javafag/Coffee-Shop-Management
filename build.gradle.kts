@@ -19,6 +19,16 @@ repositories {
 }
 
 dependencies {
+	// Spring Security — основа защиты
+	implementation("org.springframework.boot:spring-boot-starter-security")
+
+// JWT — для создания тех самых "паспортов" (токенов)
+	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
+// Тестирование безопасности (пригодится позже)
+	testImplementation("org.springframework.security:spring-security-test")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")

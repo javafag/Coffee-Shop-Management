@@ -70,3 +70,5 @@ databaseChangeLog:
                     foreignKeyName: fk_order_waiter
                     referencedTableName: waiters
                     referencedColumnNames: id
+  - include:
+      file: db/changelog/v2__create_users_table.xml
