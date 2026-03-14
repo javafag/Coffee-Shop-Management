@@ -1,7 +1,7 @@
 package com.example.Coffee.Shop.Management.service;
 
-import com.example.Coffee.Shop.Management.dto.CsfOrderRequestDto;
-import com.example.Coffee.Shop.Management.dto.CsfOrderResponseDto;
+import com.example.Coffee.Shop.Management.dto.OrderRequestDto;
+import com.example.Coffee.Shop.Management.dto.OrderResponseDto;
 import com.example.Coffee.Shop.Management.entity.CsfOrder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +33,7 @@ public class CsfOrderServiceTest {
     @DisplayName("Успешное создание заказа: маппинг и сохранение")
     void createOrder_ShouldReturnResponseDto_WhenRequestIsValid() {
         // 1. Arrange (Дано)
-        CsfOrderRequestDto request = CsfOrderRequestDto.builder()
+        OrderRequestDto request = OrderRequestDto.builder()
                 .drinkName("Latte")
                 .status("NEW")
                 .price(5.0)
@@ -52,7 +52,7 @@ public class CsfOrderServiceTest {
         when(repository.save(any(CsfOrder.class))).thenReturn(savedOrder);
 
         // 2. Act (Когда)
-        CsfOrderResponseDto response = service.createOrder(request);
+        OrderResponseDto response = service.createOrder(request);
 
         // 3. Assert (Тогда)
         assertNotNull(response);

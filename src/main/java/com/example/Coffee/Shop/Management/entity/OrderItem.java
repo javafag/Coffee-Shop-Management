@@ -27,5 +27,5 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
-    private CsfOrder order;
+    private Order order;
 }

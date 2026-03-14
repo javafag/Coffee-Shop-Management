@@ -1,9 +1,9 @@
 package com.example.Coffee.Shop.Management.service;
 
-import com.example.Coffee.Shop.Management.dto.CsfOrderRequestDto;
-import com.example.Coffee.Shop.Management.dto.CsfOrderResponseDto;
-import com.example.Coffee.Shop.Management.entity.CsfOrder;
+import com.example.Coffee.Shop.Management.dto.OrderRequestDto;
+import com.example.Coffee.Shop.Management.dto.OrderResponseDto;
 import com.example.Coffee.Shop.Management.entity.Customer;
+import com.example.Coffee.Shop.Management.entity.Order;
 import com.example.Coffee.Shop.Management.entity.Waiter;
 import com.example.Coffee.Shop.Management.repository.CustomerRepository;
 import com.example.Coffee.Shop.Management.repository.OrderRepository;
@@ -17,7 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 @Service
 @RequiredArgsConstructor
-public class CsfOrderService {
+public class OrderService {
 
 
     private final OrderRepository orderRepository;
@@ -25,7 +25,7 @@ public class CsfOrderService {
     private final WaiterRepository waiterRepository;
 
 
-    public CsfOrderResponseDto createOrder(CsfOrderRequestDto request) {
+    public OrderResponseDto createOrder(OrderRequestDto request) {
 
         String nameFromDto = request.getWaiterName();
 
@@ -50,7 +50,7 @@ public class CsfOrderService {
 
 
 
-        CsfOrder order = CsfOrder.builder()
+        Order order = Order.builder()
                 .waiter(waiter)
                 .customer(savedCustomer)
                 .drinkName(request.getDrinkName())
@@ -58,10 +58,10 @@ public class CsfOrderService {
                 .price(request.getPrice())
                 .build();
 
-        CsfOrder savedOrder = orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
 
 
-        return CsfOrderResponseDto.builder()
+        return OrderResponseDto.builder()
                 .id(savedOrder.getId())
                 .drinkName(savedOrder.getDrinkName())
                 .status(savedOrder.getStatus())

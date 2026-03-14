@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class CsfOrderResponseDto {
+public class OrderResponseDto {
 
     private Long id;
     private String drinkName;

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 
-public class CsfOrderRequestDto {
+public class OrderRequestDto {
 
     @NotBlank(message = "Name mandatory")
     private String drinkName;
