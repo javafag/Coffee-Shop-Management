@@ -1,11 +1,11 @@
 package com.example.Coffee.Shop.Management.controller;
 
-import com.example.Coffee.Shop.Management.dto.CsfOrderRequestDto;
-import com.example.Coffee.Shop.Management.dto.CsfOrderResponseDto;
-import com.example.Coffee.Shop.Management.dto.CsfWaiterStatsDto; // Не забудь создать этот DTO!
+import com.example.Coffee.Shop.Management.dto.OrderRequestDto;
+import com.example.Coffee.Shop.Management.dto.OrderResponseDto;
+import com.example.Coffee.Shop.Management.dto.WaiterStatsDto;
 import com.example.Coffee.Shop.Management.repository.OrderRepository;
 import com.example.Coffee.Shop.Management.repository.WaiterRepository;
-import com.example.Coffee.Shop.Management.service.CsfOrderService;
+import com.example.Coffee.Shop.Management.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,16 +18,16 @@ import java.math.BigDecimal;
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
-public class CsfOrderControllerV1 {
+public class OrderControllerV1 {
 
-    private final CsfOrderService csfService;
+    private final OrderService csfService;
     private final OrderRepository orderRepository;
     private final WaiterRepository waiterRepository;
 
 
     @PostMapping
-    public ResponseEntity<CsfOrderResponseDto> postRequest(@RequestBody @Valid CsfOrderRequestDto request) {
-        CsfOrderResponseDto created = csfService.createOrder(request);
+    public ResponseEntity<OrderResponseDto> postRequest(@RequestBody @Valid OrderRequestDto request) {
+        OrderResponseDto created = csfService.createOrder(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -40,11 +40,11 @@ public class CsfOrderControllerV1 {
 
 
     @GetMapping("/waiters/{id}/stats")
-    public ResponseEntity<CsfWaiterStatsDto> showBestWaiterStat(@PathVariable Long id) {
+    public ResponseEntity<WaiterStatsDto> showBestWaiterStat(@PathVariable Long id) {
         return waiterRepository.findById(id)
                 .map(waiter -> {
                     BigDecimal total = orderRepository.getTotalSalesByWaiterId(id);
-                    CsfWaiterStatsDto stats = CsfWaiterStatsDto.builder()
+                    WaiterStatsDto stats = WaiterStatsDto.builder()
                             .waiterId(waiter.getId())
                             .waiterName(waiter.getName())
                             .totalSales(total != null ? total : BigDecimal.ZERO)
@@ -55,4 +55,5 @@ public class CsfOrderControllerV1 {
 
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
 }

@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Data
 @Builder
 @AllArgsConstructor
-public class CsfWaiterStatsDto {
+public class WaiterStatsDto {
     private Long waiterId;
     private String waiterName;
     private BigDecimal totalSales;

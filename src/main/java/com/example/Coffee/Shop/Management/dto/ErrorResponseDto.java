@@ -12,7 +12,7 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CsfErrorResponseDto {
+public class ErrorResponseDto {
     private Integer status;
     private String code;
     private String msg;

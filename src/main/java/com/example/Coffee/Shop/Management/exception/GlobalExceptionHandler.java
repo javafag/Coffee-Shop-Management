@@ -1,6 +1,6 @@
 package com.example.Coffee.Shop.Management.exception;
 
-import com.example.Coffee.Shop.Management.dto.CsfErrorResponseDto;
+import com.example.Coffee.Shop.Management.dto.ErrorResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,10 +19,10 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<CsfErrorResponseDto> handleException(ResponseStatusException ex, HttpServletRequest request){
+    public ResponseEntity<ErrorResponseDto> handleException(ResponseStatusException ex, HttpServletRequest request){
         if(ex.getStatusCode() == HttpStatus.NOT_FOUND) {
 
-            CsfErrorResponseDto response = CsfErrorResponseDto
+            ErrorResponseDto response = ErrorResponseDto
                     .builder()
                     .status(404)
                     .code("NOT_FOUND_ERROR")
@@ -36,14 +36,14 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<CsfErrorResponseDto> handleException(MethodArgumentNotValidException ex, HttpServletRequest request)  {
+    public ResponseEntity<ErrorResponseDto> handleException(MethodArgumentNotValidException ex, HttpServletRequest request)  {
         Map<String,String> fieldErrors = new HashMap<>();
 
         for(FieldError fe : ex.getBindingResult().getFieldErrors()){
             fieldErrors.put(fe.getField(),fe.getDefaultMessage());
         }
 
-            CsfErrorResponseDto response = CsfErrorResponseDto
+            ErrorResponseDto response = ErrorResponseDto
                     .builder()
                     .status(400)
                     .code("VALIDATION_ERROR")
@@ -58,9 +58,9 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<CsfErrorResponseDto> handleAllUncaughtExceptions(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponseDto> handleAllUncaughtExceptions(Exception ex, HttpServletRequest request) {
         ex.printStackTrace();
-        CsfErrorResponseDto response = CsfErrorResponseDto.builder()
+        ErrorResponseDto response = ErrorResponseDto.builder()
                 .status(500)
                 .code("INTERNAL_SERVER_ERROR")
                 .msg("Something went wrong on our side")
