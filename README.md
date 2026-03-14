@@ -39,4 +39,4 @@ Run the application:
 
 API Documentation
 Once started, the Swagger UI is available at:
-http://localhost:8082/swagger-ui/index.html
+http://localhost:8083/swagger-ui/index.html
