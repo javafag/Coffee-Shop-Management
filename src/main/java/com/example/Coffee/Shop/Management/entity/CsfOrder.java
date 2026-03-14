@@ -1,7 +1,13 @@
 package com.example.Coffee.Shop.Management.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -22,7 +28,12 @@ public class CsfOrder {
     @JoinColumn(name = "waiter_id", nullable = false)
     private Waiter waiter;
 
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems;
+
+
+
     private String drinkName;
     private String status;
-    private java.math.BigDecimal price;
+    private BigDecimal price;
 }
