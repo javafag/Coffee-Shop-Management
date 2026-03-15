@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
-public class OrderControllerV1 {
+public class OrderController {
 
     private final OrderService csfService;
     private final OrderRepository orderRepository;

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,9 +32,9 @@ public class Order {
     @JoinColumn(name = "waiter_id", nullable = false)
     private Waiter waiter;
 
+    @BatchSize(size = 10)
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems;
-
 
 
     private String drinkName;

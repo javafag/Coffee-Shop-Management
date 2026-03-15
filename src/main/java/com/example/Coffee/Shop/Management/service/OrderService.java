@@ -14,7 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-@Transactional
+import java.util.List;
+import java.util.stream.Collectors;
+
+
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -24,7 +27,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final WaiterRepository waiterRepository;
 
-
+    @Transactional
     public OrderResponseDto createOrder(OrderRequestDto request) {
 
         String nameFromDto = request.getWaiterName();
@@ -72,12 +75,111 @@ public class OrderService {
 
 
 
-
+    @Transactional
     public void deleteOrder(Long id) {
         if (!orderRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found");
         }
         orderRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponseDto getOrderById(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found"));
+
+        return OrderResponseDto.builder()
+                .id(order.getId())
+                .drinkName(order.getDrinkName())
+                .status(order.getStatus())
+                .price(order.getPrice())
+                // .customerName(order.getCustomer().getName())
+                //.waiterName(order.getWaiter().getName())
+                .build();
+    }
+
+
+
+    @Transactional
+    public OrderResponseDto updateOrder(Long id, OrderRequestDto request) {
+        Order order =orderRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found"));
+
+        if (request.getDrinkName() != null) {
+            order.setDrinkName(request.getDrinkName());
+        }
+        if (request.getStatus() != null) {
+            order.setStatus(request.getStatus());
+        }
+        if (request.getPrice() != null) {
+            order.setPrice(request.getPrice());
+        }
+        if(request.getCustomerName() != null){
+            order.getCustomer().setName(request.getCustomerName());
+        }
+
+        if(request.getWaiterName() != null){
+            order.getWaiter().setName(request.getWaiterName());
+        }
+
+        Order savedOrder = orderRepository.save(order);
+
+        return OrderResponseDto.builder()
+                .id(savedOrder.getId())
+                .drinkName(savedOrder.getDrinkName())
+                .status(savedOrder.getStatus())
+                .price(savedOrder.getPrice())
+                .build();
+    }
+
+
+
+    @Transactional(readOnly = true)
+    public List<OrderResponseDto> getAllOrders() {
+        List<Order> orders = orderRepository.findAll();
+
+        if(orders.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found");
+        }
+
+        return orders.stream()
+                .map(order -> OrderResponseDto.builder()
+                        .id(order.getId())
+                        .drinkName(order.getDrinkName())
+                        .status(order.getStatus())
+                        .price(order.getPrice())
+                        .build())
+                .collect(Collectors.toList());
+
+    }
+
+    @Transactional(readOnly = true)  // Только чтение!
+    public List<OrderResponseDto> getOrdersByStatus(String status) {
+        List<Order> orders = orderRepository.findByStatus(status);
+
+        return orders.stream()
+                .map(order -> OrderResponseDto.builder()
+                        .id(order.getId())
+                        .drinkName(order.getDrinkName())
+                        .status(order.getStatus())
+                        .price(order.getPrice())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponseDto> getOrdersByWaiterName(String name) {
+        List<Order> orders = orderRepository.findByWaiterName(name);
+
+        return orders.stream()
+                .map(order -> OrderResponseDto.builder()
+                        .id(order.getId())
+                        .drinkName(order.getDrinkName())
+                        .status(order.getStatus())
+                        .price(order.getPrice())
+                        .waiterName(order.getWaiter().getName())
+                        .build())
+                .collect(Collectors.toList());
     }
 
 

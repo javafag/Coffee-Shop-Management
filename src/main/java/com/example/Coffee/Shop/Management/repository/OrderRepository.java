@@ -1,6 +1,7 @@
 package com.example.Coffee.Shop.Management.repository;
 
 import com.example.Coffee.Shop.Management.entity.Order;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,12 +26,20 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
 
 
-
     @Query("SELECT oi.menuItem.name, SUM(oi.quantity) FROM OrderItem oi GROUP BY oi.menuItem.name ORDER BY SUM(oi.quantity) DESC")
     List<Object[]> getMostPopularDrinks();
 
     @Query("SELECT o FROM Order o WHERE o.customer.id = :customerId AND o.price > :minAmount")
     List<Order> findCustomerOrdersWithAmountGreaterThan(@Param("customerId") Long customerId, @Param("minAmount") BigDecimal minAmount);
+
+    @EntityGraph(attributePaths = {"customer", "orderItems.menuItem"})
+    List<Order> findByStatus(String status);
+
+    @EntityGraph(attributePaths = {"waiter", "orderItems.menuItem"})
+    List<Order> findByWaiterName(String name);
+
+    @EntityGraph(attributePaths = {"waiter", "customer", "orderItems.menuItem"})
+    List<Order> findAll();
 
     List<Order> findByCustomerIdAndStatus(Long customerId, String status);
     List<Order> findByWaiterIdAndOrderDateBetween(Long waiterId, LocalDateTime start, LocalDateTime end);

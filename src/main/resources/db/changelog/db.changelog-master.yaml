@@ -1,4 +1,53 @@
 databaseChangeLog:
+
+  - changeSet:
+      id: "add-seed-data-and-indexes"
+      author: "developer"
+      changes:
+        - insert:
+            tableName: menu_items
+            columns:
+              - column:
+                  name: name
+                  value: "Latte"
+              - column:
+                  name: description
+                  value: "Classic Italian coffee"
+              - column:
+                  name: price
+                  value: 4.99
+              - column:
+                  name: category
+                  value: "COFFEE"
+                  
+        - insert:
+            tableName: waiters
+            columns:
+              - column:
+                  name: name
+                  value: "John Doe"
+
+        - createIndex:
+            tableName: orders
+            indexName: idx_order_status
+            columns:
+              - column:
+                  name: status
+                  
+        - createIndex:
+            tableName: orders
+            indexName: idx_order_customer
+            columns:
+              - column:
+                  name: customer_id
+
+        - createIndex:
+            tableName: orders
+            indexName: idx_order_waiter
+            columns:
+              - column:
+                  name: waiter_id
+
   - changeSet:
       id: 1
       author: javafag
@@ -17,6 +66,7 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
+
   - changeSet:
       id: 2
       author: javafag
@@ -33,6 +83,7 @@ databaseChangeLog:
               - column:
                   name: name
                   type: varchar(255)
+
   - changeSet:
       id: 3
       author: javafag
@@ -70,5 +121,12 @@ databaseChangeLog:
                     foreignKeyName: fk_order_waiter
                     referencedTableName: waiters
                     referencedColumnNames: id
+
   - include:
       file: db/changelog/v2__create_users_table.xml
+  - include:
+      file: db/changelog/v3__create_menu_items_table.xml
+  - include:
+      file: db/changelog/v4__create_order_items_table.xml
+  - include:
+      file: db/changelog/v5__add_user_columns.xml

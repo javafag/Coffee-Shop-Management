@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,12 +19,14 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
+    @Transactional
     public String register(AuthRequestDto request){
 
         var user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
+                .email(request.getUsername() + "@coffee.com")
                 .build();
         userRepository.save(user);
 
@@ -32,8 +35,8 @@ public class AuthService {
 
 
 
+    @Transactional(readOnly = true)
     public AuthResponseDto authenticate(AuthRequestDto request) {
-        // 1. Проверяем логин и пароль (если неверно — вылетит исключение)
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
