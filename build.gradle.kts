@@ -19,6 +19,12 @@ repositories {
 }
 
 dependencies {
+	implementation("org.springframework.boot:spring-boot-starter")
+	implementation("com.querydsl:querydsl-jpa:5.1.0:jakarta")
+	implementation("com.querydsl:querydsl-core:5.1.0")
+	annotationProcessor("com.querydsl:querydsl-apt:5.1.0:jakarta")
+	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
@@ -38,6 +44,7 @@ dependencies {
 	runtimeOnly ("org.postgresql:postgresql")
 	implementation ("org.liquibase:liquibase-core")
 }
+
 
 tasks.withType<Test> {
 	useJUnitPlatform()

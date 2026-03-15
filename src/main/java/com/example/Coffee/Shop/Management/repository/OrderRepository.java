@@ -24,9 +24,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Object[]> getSalesByWaiter();
 
 
+
+
     @Query("SELECT oi.menuItem.name, SUM(oi.quantity) FROM OrderItem oi GROUP BY oi.menuItem.name ORDER BY SUM(oi.quantity) DESC")
     List<Object[]> getMostPopularDrinks();
 
+    @Query("SELECT o FROM Order o WHERE o.customer.id = :customerId AND o.price > :minAmount")
+    List<Order> findCustomerOrdersWithAmountGreaterThan(@Param("customerId") Long customerId, @Param("minAmount") BigDecimal minAmount);
 
     List<Order> findByCustomerIdAndStatus(Long customerId, String status);
     List<Order> findByWaiterIdAndOrderDateBetween(Long waiterId, LocalDateTime start, LocalDateTime end);
