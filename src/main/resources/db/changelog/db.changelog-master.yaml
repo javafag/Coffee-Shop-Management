@@ -130,3 +130,5 @@ databaseChangeLog:
       file: db/changelog/v4__create_order_items_table.xml
   - include:
       file: db/changelog/v5__add_user_columns.xml
+  - include:
+      file: db/changelog/v6__create_tokens_table.xml
