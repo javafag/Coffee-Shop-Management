@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.3.4"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("jacoco")
 }
 
 group = "com.example"
@@ -31,6 +32,10 @@ dependencies {
 	implementation("org.liquibase:liquibase-core")
 	runtimeOnly("org.postgresql:postgresql")
 	runtimeOnly("com.h2database:h2")
+
+	testImplementation("org.testcontainers:junit-jupiter")
+	testImplementation("org.testcontainers:postgresql")
+	testImplementation("org.testcontainers:wiremock")
 
 	// QueryDSL (Jakarta)
 	implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
@@ -69,4 +74,16 @@ configurations.all {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+
+jacoco {
+	toolVersion = "0.8.8"
+}
+
+tasks.jacocoTestReport {
+	reports {
+		xml.required.set(true)
+		html.required.set(true)
+	}
 }
