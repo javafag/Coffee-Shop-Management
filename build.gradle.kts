@@ -3,6 +3,7 @@ plugins {
 	id("org.springframework.boot") version "3.3.4"
 	id("io.spring.dependency-management") version "1.1.7"
 	id("jacoco")
+	kotlin("jvm")
 }
 
 group = "com.example"
@@ -56,11 +57,13 @@ dependencies {
 	implementation("org.apache.commons:commons-lang3:3.18.0")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
+	implementation("org.modelmapper:modelmapper:3.1.1")
 
 	// Testing
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	implementation(kotlin("stdlib-jdk8"))
 }
 
 

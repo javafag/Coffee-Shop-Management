@@ -36,8 +36,9 @@ public class MenuItem {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @NotNull
-    private String category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private MenuCategory category;
 
 
 }

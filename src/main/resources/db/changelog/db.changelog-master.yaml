@@ -132,3 +132,9 @@ databaseChangeLog:
       file: db/changelog/v5__add_user_columns.xml
   - include:
       file: db/changelog/v6__create_tokens_table.xml
+  - include:
+      file: db/changelog/v7__create_menu_categories_table.xml
+  - include:
+      file: db/changelog/v8__create_tables_table.xml
+  - include:
+      file: db/changelog/v9__create_reservations_table.xml
