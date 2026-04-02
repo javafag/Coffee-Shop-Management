@@ -29,10 +29,10 @@ public class AuthService {
     public String register(AuthRequestDto request){
 
         var user = User.builder()
-                .username(request.getUsername())
+                .username(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(request.getRole())
-                .email(request.getUsername() + "@coffee.com")
+                .email(request.getEmail())
                 .build();
         userRepository.save(user);
 
@@ -41,16 +41,16 @@ public class AuthService {
 
 
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponseDto authenticate(AuthRequestDto request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
+                        request.getEmail(),
                         request.getPassword()
                 )
         );
 
-        var user = userRepository.findByUsername(request.getUsername())
+        var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow();
 
         revokeAllUserTokens(user);
