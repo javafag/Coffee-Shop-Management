@@ -1,0 +1,5 @@
+// Добавить эти зависимости в build.gradle.kts после строки 60:
+
+	// Monitoring & Actuator
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	implementation("io.micrometer:micrometer-registry-prometheus:1.11.5")

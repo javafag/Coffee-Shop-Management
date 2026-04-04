@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!-- Drop all existing tables -->
+    <changeSet id="drop-all-tables" author="developer">
+        <sql>
+            DROP TABLE IF EXISTS reservations CASCADE;
+            DROP TABLE IF EXISTS order_items CASCADE;
+            DROP TABLE IF EXISTS orders CASCADE;
+            DROP TABLE IF EXISTS tokens CASCADE;
+            DROP TABLE IF EXISTS menu_items CASCADE;
+            DROP TABLE IF EXISTS menu_categories CASCADE;
+            DROP TABLE IF EXISTS tables CASCADE;
+            DROP TABLE IF EXISTS users CASCADE;
+            DROP TABLE IF EXISTS waiters CASCADE;
+            DROP TABLE IF EXISTS customers CASCADE;
+        </sql>
+    </changeSet>
+
+
+    <changeSet id="create-customers" author="developer">
+        <createTable tableName="customers">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)"/>
+        </createTable>
+        
+        <createIndex tableName="customers" indexName="uk_customers_email" unique="true">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Create waiters table -->
+    <changeSet id="create-waiters" author="developer">
+        <createTable tableName="waiters">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Create users table -->
+    <changeSet id="create-users" author="developer">
+        <createTable tableName="users">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="role" type="varchar(50)" defaultValue="USER"/>
+            <column name="created_at" type="timestamp"/>
+            <column name="is_active" type="boolean" defaultValueBoolean="true"/>
+        </createTable>
+        
+        <addDefaultValue tableName="users" columnName="created_at" defaultValueDate="now()"/>
+        
+        <createIndex tableName="users" indexName="uk_users_email" unique="true">
+            <column name="email"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Create menu_categories table -->
+    <changeSet id="create-menu-categories" author="developer">
+        <createTable tableName="menu_categories">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text"/>
+            <column name="display_order" type="integer"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Create menu_items table -->
+    <changeSet id="create-menu-items" author="developer">
+        <createTable tableName="menu_items">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="text"/>
+            <column name="price" type="numeric(19,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="category_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addForeignKeyConstraint 
+            baseTableName="menu_items" 
+            baseColumnNames="category_id"
+            referencedTableName="menu_categories" 
+            referencedColumnNames="id"
+            constraintName="fk_menu_items_category"/>
+    </changeSet>
+
+    <!-- Create tables table -->
+    <changeSet id="create-tables" author="developer">
+        <createTable tableName="tables">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="table_number" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="capacity" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_available" type="boolean" defaultValueBoolean="true"/>
+            <column name="is_reserved" type="boolean" defaultValueBoolean="false"/>
+            <column name="is_active" type="boolean" defaultValueBoolean="true"/>
+        </createTable>
+        
+        <createIndex tableName="tables" indexName="idx_table_number" unique="true">
+            <column name="table_number"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Create orders table -->
+    <changeSet id="create-orders" author="developer">
+        <createTable tableName="orders">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="order_date" type="timestamp"/>
+            <column name="customer_id" type="bigint"/>
+            <column name="waiter_id" type="bigint"/>
+            <column name="drink_name" type="varchar(255)"/>
+            <column name="status" type="varchar(50)"/>
+            <column name="price" type="numeric(19,2)"/>
+        </createTable>
+        
+        <addDefaultValue tableName="orders" columnName="order_date" defaultValueDate="now()"/>
+        
+        <addForeignKeyConstraint 
+            baseTableName="orders" 
+            baseColumnNames="customer_id"
+            referencedTableName="customers" 
+            referencedColumnNames="id"
+            constraintName="fk_order_customer"/>
+            
+        <addForeignKeyConstraint 
+            baseTableName="orders" 
+            baseColumnNames="waiter_id"
+            referencedTableName="waiters" 
+            referencedColumnNames="id"
+            constraintName="fk_order_waiter"/>
+    </changeSet>
+
+    <!-- Create order_items table -->
+    <changeSet id="create-order-items" author="developer">
+        <createTable tableName="order_items">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="menu_item_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="quantity" type="integer">
+                <constraints nullable="false"/>
+            </column>
+            <column name="unit_price" type="numeric(19,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_price" type="numeric(19,2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        
+        <addForeignKeyConstraint 
+            baseTableName="order_items" 
+            baseColumnNames="order_id"
+            referencedTableName="orders" 
+            referencedColumnNames="id"
+            constraintName="fk_order_item_order"/>
+            
+        <addForeignKeyConstraint 
+            baseTableName="order_items" 
+            baseColumnNames="menu_item_id"
+            referencedTableName="menu_items" 
+            referencedColumnNames="id"
+            constraintName="fk_order_item_menu_item"/>
+    </changeSet>
+
+    <!-- Create tokens table -->
+    <changeSet id="create-tokens" author="developer">
+        <createTable tableName="tokens">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="token" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token_type" type="varchar(50)" defaultValue="BEARER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_expired" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_revoked" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp"/>
+            <column name="expired_at" type="timestamp"/>
+        </createTable>
+        
+        <addDefaultValue tableName="tokens" columnName="created_at" defaultValueDate="now()"/>
+        
+        <addForeignKeyConstraint 
+            baseTableName="tokens" 
+            baseColumnNames="user_id"
+            referencedTableName="users" 
+            referencedColumnNames="id"
+            constraintName="fk_token_user"/>
+    </changeSet>
+
+    <!-- Create reservations table -->
+    <changeSet id="create-reservations" author="developer">
+        <createTable tableName="reservations">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="customer_name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="customer_email" type="varchar(255)"/>
+            <column name="customer_phone" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reservation_time" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="start_time" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_time" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="guest_count" type="integer"/>
+            <column name="status" type="varchar(50)" defaultValue="RESERVED"/>
+            <column name="special_requests" type="varchar(500)"/>
+            <column name="dining_table_id" type="bigint"/>
+        </createTable>
+        
+        <addForeignKeyConstraint 
+            baseTableName="reservations" 
+            baseColumnNames="dining_table_id"
+            referencedTableName="tables" 
+            referencedColumnNames="id"
+            constraintName="fk_reservation_dining_table"/>
+    </changeSet>
+
+    <!-- Create all indexes -->
+    <changeSet id="create-indexes" author="developer">
+        <createIndex tableName="orders" indexName="idx_order_status">
+            <column name="status"/>
+        </createIndex>
+        
+        <createIndex tableName="orders" indexName="idx_order_customer">
+            <column name="customer_id"/>
+        </createIndex>
+        
+        <createIndex tableName="orders" indexName="idx_order_waiter">
+            <column name="waiter_id"/>
+        </createIndex>
+        
+        <createIndex tableName="reservations" indexName="idx_reservations_time">
+            <column name="reservation_time"/>
+        </createIndex>
+        
+        <createIndex tableName="reservations" indexName="idx_reservations_table">
+            <column name="dining_table_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Insert seed data -->
+    <changeSet id="insert-seed-data" author="developer">
+        <sql>
+            INSERT INTO menu_categories (name, description, display_order) VALUES 
+            ('Кофе', 'Различные виды кофе', 1),
+            ('Чай', 'Черные и зеленые чаи', 2),
+            ('Десерты', 'Сладости и выпечка', 3),
+            ('Закуски', 'Сэндвичи и салаты', 4);
+
+            INSERT INTO menu_items (name, description, price, category_id) VALUES 
+            ('Эспрессо', 'Классический эспрессо', 120.00, 1),
+            ('Капучино', 'Кофе с молоком и пенкой', 150.00, 1),
+            ('Латте', 'Кофе с большим количеством молока', 170.00, 1),
+            ('Американо', 'Разбавленный эспрессо', 130.00, 1),
+            ('Зеленый чай', 'Японский зеленый чай', 100.00, 2),
+            ('Черный чай', 'Классический черный чай', 90.00, 2),
+            ('Чизкейк', 'Нью-йоркский чизкейк', 200.00, 3),
+            ('Шоколадный кекс', 'Домашний шоколадный кекс', 180.00, 3),
+            ('Сэндвич с курицей', 'Курица, салат, соус', 250.00, 4),
+            ('Цезарь', 'Салат Цезарь с курицей', 220.00, 4);
+
+            INSERT INTO waiters (name) VALUES 
+            ('Анна Петрова'),
+            ('Иван Иванов'),
+            ('Мария Сидорова');
+
+            INSERT INTO tables (table_number, capacity, is_available, is_reserved, is_active) VALUES 
+            ('Стол 1', 4, true, false, true),
+            ('Стол 2', 2, true, false, true),
+            ('Стол 3', 6, true, false, true),
+            ('Стол 4', 4, true, false, true),
+            ('Стол 5', 2, true, false, true),
+            ('Стол 6', 8, true, false, true),
+            ('Стол 7', 4, true, false, true),
+            ('Стол 8', 2, true, false, true),
+            ('Стол 9', 6, true, false, true),
+            ('Стол 10', 4, true, false, true);
+
+            INSERT INTO customers (name, email) VALUES 
+            ('Алексей Смирнов', 'alex@example.com'),
+            ('Елена Козлова', 'elena@example.com'),
+            ('Дмитрий Новиков', 'dmitry@example.com');
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

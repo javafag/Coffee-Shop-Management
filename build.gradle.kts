@@ -36,7 +36,7 @@ dependencies {
 
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:postgresql")
-	testImplementation("org.testcontainers:wiremock")
+	testImplementation("org.testcontainers:wiremock:1.0.2")
 
 	// QueryDSL (Jakarta)
 	implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
@@ -58,6 +58,8 @@ dependencies {
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 	implementation("org.modelmapper:modelmapper:3.1.1")
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	implementation("io.micrometer:micrometer-registry-prometheus:1.11.5")
 
 	// Testing
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
