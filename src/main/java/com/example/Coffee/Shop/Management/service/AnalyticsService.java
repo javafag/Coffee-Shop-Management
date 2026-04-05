@@ -31,19 +31,6 @@ public class AnalyticsService {
     }
 
     public List<WaiterStatsDto> getWaiterStats() {
-        List<Object[]> results = orderRepository.getSalesByWaiter();
-        List<WaiterStatsDto> dtos = new ArrayList<>();
-        for (Object[] row : results) {
-            String name = (String) row[0];
-            Long orderCount = ((Number) row[1]).longValue();
-            // Currently getting total sales by name isn't fully supported by repository in one query easily
-            // So we just return count or we can calculate total sales.
-            // Let's use orderCount as we have WaiterStatsDto that has waiterName and totalSales.
-            // If totalSales is BigDecimal, maybe the query can be updated later, but for now we'll put the count in sales, or compute it.
-            // Actually WaiterStatsDto has waiterId, we don't have it in getSalesByWaiter query.
-            // Let's get all orders and compute it in memory for total accuracy:
-        }
-        
         List<Order> allOrders = orderRepository.findAll();
         return allOrders.stream()
                 .filter(o -> o.getWaiter() != null)
