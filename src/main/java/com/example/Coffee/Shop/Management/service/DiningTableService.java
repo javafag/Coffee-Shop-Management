@@ -31,7 +31,7 @@ public class DiningTableService {
 
     public DiningTableResponseDto getTableById(Long id) {
         DiningTable entity = diningTableRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Table not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Table not found"));
 
         return toDto(entity);
     }
@@ -44,7 +44,9 @@ public class DiningTableService {
     }
 
     public List<DiningTableResponseDto> getAvailableTables(){
-        List<DiningTable> entity = diningTableRepository.findByIsActiveTrue();
+        List<DiningTable> entity = diningTableRepository.findByIsActiveTrue().stream()
+                .filter(table -> table.getIsAvailable() != null && table.getIsAvailable())
+                .collect(Collectors.toList());
         return entity.stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
@@ -59,13 +61,14 @@ public class DiningTableService {
 
     public void deleteTable(Long id) {
         DiningTable table = diningTableRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Table not found"));
-        diningTableRepository.delete(table);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Table not found"));
+        table.setIsActive(false);
+        diningTableRepository.save(table);
     }
 
     public DiningTableResponseDto createTable(DiningTableRequestDto dto){
         if(diningTableRepository.findByTableNumber(dto.getTableNumber()).isPresent()){
-            throw new RuntimeException("Table already exists");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Table already exists");
         }
 
         DiningTable entity = DiningTable.builder()
@@ -83,7 +86,7 @@ public class DiningTableService {
     public DiningTableResponseDto updateTable(Long id, DiningTableRequestDto dto){
 
         DiningTable entity = diningTableRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Table not found"));
 
         if (dto.getTableNumber() != null && !dto.getTableNumber().equals(entity.getTableNumber())) {
             if (diningTableRepository.findByTableNumber(dto.getTableNumber()).isPresent()) {

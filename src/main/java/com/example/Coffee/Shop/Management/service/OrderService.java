@@ -42,12 +42,13 @@ public class OrderService {
 
 
 
-        Customer customer = Customer.builder()
-                .name(request.getCustomerName())
-                .build();
-
-
-        Customer savedCustomer = customerRepository.save(customer);
+        Customer customer = customerRepository.findByName(request.getCustomerName())
+                .orElseGet(() -> {
+                    Customer newCustomer = Customer.builder()
+                            .name(request.getCustomerName())
+                            .build();
+                    return customerRepository.save(newCustomer);
+                });
 
 
 
@@ -55,7 +56,7 @@ public class OrderService {
 
         Order order = Order.builder()
                 .waiter(waiter)
-                .customer(savedCustomer)
+                .customer(customer)
                 .drinkName(request.getDrinkName())
                 .status(request.getStatus())
                 .price(request.getPrice())
@@ -115,11 +116,25 @@ public class OrderService {
             order.setPrice(request.getPrice());
         }
         if(request.getCustomerName() != null){
-            order.getCustomer().setName(request.getCustomerName());
+            Customer customer = customerRepository.findByName(request.getCustomerName())
+                .orElseGet(() -> {
+                    Customer newCustomer = Customer.builder()
+                            .name(request.getCustomerName())
+                            .build();
+                    return customerRepository.save(newCustomer);
+                });
+            order.setCustomer(customer);
         }
 
         if(request.getWaiterName() != null){
-            order.getWaiter().setName(request.getWaiterName());
+            Waiter waiter = waiterRepository.findByName(request.getWaiterName())
+                .orElseGet(() -> {
+                    Waiter newWaiter = Waiter.builder()
+                            .name(request.getWaiterName())
+                            .build();
+                    return waiterRepository.save(newWaiter);
+                });
+            order.setWaiter(waiter);
         }
 
         Order savedOrder = orderRepository.save(order);
