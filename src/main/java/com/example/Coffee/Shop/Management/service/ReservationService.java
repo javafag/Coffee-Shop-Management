@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final DiningTableRepository diningTableRepository;
+    private final EmailService emailService;
     @Autowired
     private ModelMapper modelMapper;
 
@@ -69,6 +70,7 @@ public class ReservationService {
         entity.setDiningTable(table);
         entity.setStatus(ReservationStatus.PENDING);
         Reservation saved = reservationRepository.save(entity);
+        emailService.sendReservationConfirmation(saved);
         return toDto(saved);
     }
 
@@ -93,7 +95,8 @@ public class ReservationService {
         }
         entity.setStatus(ReservationStatus.CANCELLED);
         // Do not alter table.setIsReserved(false) blindly!
-        reservationRepository.save(entity);
+        Reservation saved = reservationRepository.save(entity);
+        emailService.sendReservationCancellation(saved);
     }
 
     public List<UpdateReservationResponseDto> getReservationsByTable(Long tableId) {
