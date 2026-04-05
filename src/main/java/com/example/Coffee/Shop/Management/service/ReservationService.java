@@ -41,14 +41,14 @@ public class ReservationService {
     public UpdateReservationResponseDto createReservation(CreateReservationRequestDto dto) {
 
         DiningTable table = diningTableRepository.findById(dto.getDiningTableId())
-                .orElseThrow(() -> new RuntimeException("Table not found"));
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Table not found"));
 
-        if (!table.getIsActive()) {
-            throw new RuntimeException("Table is InActive");
+        if (table.getIsActive() == null || !table.getIsActive()) {
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Table is InActive");
         }
 
         if (dto.getGuestCount() > table.getCapacity()) {
-            throw new RuntimeException("More guests than capacity");
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "More guests than capacity");
         }
 
         List<Reservation> existingReservations = reservationRepository
@@ -60,8 +60,8 @@ public class ReservationService {
 
 
         for (Reservation existing : existingReservations) {
-            if (timesOverlap(dto.getReservationTime(), existing.getStartTime(), existing.getEndTime())) {
-                throw new RuntimeException("Time overlaps with existing reservation");
+            if (existing.getStatus() != ReservationStatus.CANCELLED && timesOverlap(dto.getStartTime(), dto.getEndTime(), existing.getStartTime(), existing.getEndTime())) {
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT, "Time overlaps with existing reservation");
             }
         }
 
@@ -74,9 +74,9 @@ public class ReservationService {
 
     public UpdateReservationResponseDto updateReservation(UpdateReservationRequestDto dto,Long id){
       Reservation entity = reservationRepository.findById(id)
-              .orElseThrow(() -> new RuntimeException("This reservation does not exist"));
+              .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "This reservation does not exist"));
       if(entity.getStatus() == ReservationStatus.CANCELLED) {
-          throw new RuntimeException("Cannot update cancelled reservation");
+          throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Cannot update cancelled reservation");
       }
 
       modelMapper.map(dto,entity);
@@ -87,13 +87,12 @@ public class ReservationService {
 
     public void cancelReservation(Long id){
         Reservation entity = reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("This reservation does not exist"));
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "This reservation does not exist"));
         if (entity.getStatus() == ReservationStatus.CANCELLED) {
-            throw new RuntimeException("Reservation already cancelled");
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST, "Reservation already cancelled");
         }
         entity.setStatus(ReservationStatus.CANCELLED);
-        entity.getDiningTable().setIsReserved(false);
-        diningTableRepository.save(entity.getDiningTable());
+        // Do not alter table.setIsReserved(false) blindly!
         reservationRepository.save(entity);
     }
 
@@ -129,16 +128,19 @@ public class ReservationService {
         
 
         return allSlots.stream()
-                .filter(slot -> dayReservations.stream()
-                        .noneMatch(reservation -> 
-                            Math.abs(slot.toSecondOfDay() - 
-                                reservation.getReservationTime().toLocalTime().toSecondOfDay()) < 3600))
+                .filter(slot -> {
+                    LocalDateTime slotStart = date.atTime(slot);
+                    LocalDateTime slotEnd = slotStart.plusHours(1);
+                    return dayReservations.stream()
+                            .filter(r -> r.getStatus() != ReservationStatus.CANCELLED)
+                            .noneMatch(reservation -> timesOverlap(slotStart, slotEnd, reservation.getStartTime(), reservation.getEndTime()));
+                })
                 .collect(Collectors.toList());
     }
     
 
-    private boolean timesOverlap(LocalDateTime newStart, LocalDateTime existingStart, LocalDateTime existingEnd) {
-        return newStart.isBefore(existingEnd) && newStart.isAfter(existingStart);
+    private boolean timesOverlap(LocalDateTime newStart, LocalDateTime newEnd, LocalDateTime existingStart, LocalDateTime existingEnd) {
+        return newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
     }
 
 
