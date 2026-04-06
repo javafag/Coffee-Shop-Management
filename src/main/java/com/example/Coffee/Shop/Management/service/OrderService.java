@@ -26,6 +26,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final WaiterRepository waiterRepository;
+    private final org.springframework.messaging.simp.SimpMessagingTemplate messagingTemplate;
 
     @Transactional
     public OrderResponseDto createOrder(OrderRequestDto request) {
@@ -65,13 +66,16 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
 
 
-        return OrderResponseDto.builder()
+        OrderResponseDto responseDto = OrderResponseDto.builder()
                 .id(savedOrder.getId())
                 .drinkName(savedOrder.getDrinkName())
                 .status(savedOrder.getStatus())
                 .price(savedOrder.getPrice())
                 .customerName(savedOrder.getCustomer().getName())
                 .build();
+                
+        messagingTemplate.convertAndSend("/topic/orders", responseDto);
+        return responseDto;
     }
 
 
@@ -94,8 +98,6 @@ public class OrderService {
                 .drinkName(order.getDrinkName())
                 .status(order.getStatus())
                 .price(order.getPrice())
-                // .customerName(order.getCustomer().getName())
-                //.waiterName(order.getWaiter().getName())
                 .build();
     }
 
@@ -168,7 +170,7 @@ public class OrderService {
 
     }
 
-    @Transactional(readOnly = true)  // Только чтение!
+    @Transactional(readOnly = true)
     public List<OrderResponseDto> getOrdersByStatus(String status) {
         List<Order> orders = orderRepository.findByStatus(status);
 

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @RequestMapping("/api/analytics")
 @RequiredArgsConstructor
 @Tag(name = "Analytics", description = "Endpoints for business analytics and reports")
+@PreAuthorize("hasRole('ADMIN')")
 public class AnalyticsController {
 
     private final AnalyticsService analyticsService;
@@ -37,5 +39,11 @@ public class AnalyticsController {
     @Operation(summary = "Get an overall business summary including revenue and top sellers")
     public BusinessSummaryDto getBusinessSummary() {
         return analyticsService.getBusinessSummary();
+    }
+
+    @GetMapping("/revenue-chart")
+    @Operation(summary = "Get daily revenue data for charts")
+    public List<com.example.Coffee.Shop.Management.dto.DailyRevenueDto> getRevenueChart() {
+        return analyticsService.getRevenueChart();
     }
 }
