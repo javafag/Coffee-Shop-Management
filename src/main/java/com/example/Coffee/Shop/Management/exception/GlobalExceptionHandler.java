@@ -20,18 +20,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponseDto> handleException(ResponseStatusException ex, HttpServletRequest request){
-        if(ex.getStatusCode() == HttpStatus.NOT_FOUND) {
-
-            ErrorResponseDto response = ErrorResponseDto
-                    .builder()
-                    .status(404)
-                    .code("NOT_FOUND_ERROR")
-                    .msg("This order doesn't exist")
-                    .path(request.getRequestURI())
-                    .build();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-        throw ex;
+        ErrorResponseDto response = ErrorResponseDto
+                .builder()
+                .status(ex.getStatusCode().value())
+                .code(ex.getStatusCode().toString())
+                .msg(ex.getReason() != null ? ex.getReason() : "An error occurred")
+                .path(request.getRequestURI())
+                .build();
+        return ResponseEntity.status(ex.getStatusCode()).body(response);
     }
 
 

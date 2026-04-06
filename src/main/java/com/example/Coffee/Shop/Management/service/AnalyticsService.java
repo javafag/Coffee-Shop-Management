@@ -6,9 +6,12 @@ import com.example.Coffee.Shop.Management.dto.WaiterStatsDto;
 import com.example.Coffee.Shop.Management.entity.Order;
 import com.example.Coffee.Shop.Management.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,6 +49,20 @@ public class AnalyticsService {
                 .collect(Collectors.toList());
     }
 
+    public List<com.example.Coffee.Shop.Management.dto.DailyRevenueDto> getRevenueChart() {
+        List<Object[]> results = orderRepository.getRevenuePerDay();
+        List<com.example.Coffee.Shop.Management.dto.DailyRevenueDto> chart = new ArrayList<>();
+        for (Object[] row : results) {
+            if (row[0] != null && row[1] != null) {
+                LocalDate date = ((Date) row[0]).toLocalDate();
+                BigDecimal revenue = new BigDecimal(((Number) row[1]).toString());
+                chart.add(new com.example.Coffee.Shop.Management.dto.DailyRevenueDto(date, revenue));
+            }
+        }
+        return chart;
+    }
+
+    @Cacheable("businessSummary")
     public BusinessSummaryDto getBusinessSummary() {
         List<Order> allOrders = orderRepository.findAll();
         

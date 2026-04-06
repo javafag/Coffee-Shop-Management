@@ -43,4 +43,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findByCustomerIdAndStatus(Long customerId, String status);
     List<Order> findByWaiterIdAndOrderDateBetween(Long waiterId, LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT cast(o.orderDate as date), SUM(o.price) FROM Order o GROUP BY cast(o.orderDate as date) ORDER BY cast(o.orderDate as date) ASC")
+    List<Object[]> getRevenuePerDay();
 }
