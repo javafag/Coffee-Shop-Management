@@ -7,6 +7,7 @@
     <!-- Drop all existing tables -->
     <changeSet id="drop-all-tables" author="developer">
         <sql>
+            DROP TABLE IF EXISTS email_history CASCADE;
             DROP TABLE IF EXISTS reservations CASCADE;
             DROP TABLE IF EXISTS order_items CASCADE;
             DROP TABLE IF EXISTS orders CASCADE;
@@ -267,13 +268,61 @@
             <column name="special_requests" type="varchar(500)"/>
             <column name="dining_table_id" type="bigint"/>
         </createTable>
-        
-        <addForeignKeyConstraint 
-            baseTableName="reservations" 
+
+        <addForeignKeyConstraint
+            baseTableName="reservations"
             baseColumnNames="dining_table_id"
-            referencedTableName="tables" 
+            referencedTableName="tables"
             referencedColumnNames="id"
             constraintName="fk_reservation_dining_table"/>
+    </changeSet>
+
+    <!-- Create email_history table -->
+    <changeSet id="create-email-history" author="developer">
+        <createTable tableName="email_history">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="recipient_email" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="subject" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="body" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_id" type="bigint"/>
+            <column name="reservation_id" type="bigint"/>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="error_message" type="varchar(500)"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+            baseTableName="email_history"
+            baseColumnNames="order_id"
+            referencedTableName="orders"
+            referencedColumnNames="id"
+            constraintName="fk_email_history_order"
+            onDelete="SET NULL"
+            onUpdate="CASCADE"/>
+
+        <addForeignKeyConstraint
+            baseTableName="email_history"
+            baseColumnNames="reservation_id"
+            referencedTableName="reservations"
+            referencedColumnNames="id"
+            constraintName="fk_email_history_reservation"
+            onDelete="SET NULL"
+            onUpdate="CASCADE"/>
     </changeSet>
 
     <!-- Create all indexes -->
